@@ -67,7 +67,6 @@ class Huffman():
     def __init__(self, init:str):
         self.input = init
         self._update()
-        self.head = None
 
     def update(self, n:str):
         self.input += n
@@ -76,7 +75,6 @@ class Huffman():
     def _update(self):
         q = PriorityQueue()
         init = {x:self.input.count(x) for x in self.input}
-        print(init)
 
         for k,v in init.items():
             q.put((v, TreeElem(k, v)))
@@ -97,23 +95,28 @@ class Huffman():
     def lookup(self, i:str):
         o = ""
         for c in i:
-            o += head.lookup(c)[1]
+            r = self.head.lookup(c)
+            if r[0]:
+                o += r[1]
+            else:
+                print("'%s' not known to the tree, skipping" % c)
         return o
 
 parser = argparse.ArgumentParser()
-parser.add_argument("initial")
+parser.add_argument("initial", help="Initial string from which the huffman tree is built")
 
 args = parser.parse_args()
 
 h = Huffman(args.initial)
 
+print("'u <string>' to append to the string from which the huffman tree is generated\n'l <string>' to get the string encoded with the current huffman tree\n")
 while True:
     print("u(pdate)/l(ookup)/q(uit)", end=": ")
     i = input()
     if i.startswith("u "):
         h.update(i[2:])
     elif i.startswith("l "):
-        h.lookup(i[2:])
+        print(h.lookup(i[2:]))
     elif i.startswith("q"):
         break
     else:
