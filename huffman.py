@@ -5,6 +5,7 @@ import graphviz as dot
 identifier = 0
 
 class TreeElem():
+    cnt = 0
     def __init__(self, char:str, num:int, left=None, right=None):
         global identifier
         self.char = char
@@ -33,12 +34,17 @@ class TreeElem():
             return "{char:" + self.char + "num:" + str(self.num) + "left:" + "right:" + str(self.right) + "}"
         else:
             return "{char:" + self.char + "num:" + str(self.num) + "left:" "right:" + "}"
+    def __repr__(self):
+        return self.__str__()
 
     def toDot(self, acc:dot.Digraph=None):
         if acc is None:
             acc = dot.Digraph('g', filename='huffman.dot', node_attr={'shape': 'record', 'height': '.1'})
 
-        acc.node(str(id(self)), label=('"' + self.char + '"') if self.char != "" else "")
+        if self.char != "":
+            acc.node(str(id(self)), label=(f'"{self.char}"'))
+        else:
+            acc.node(str(id(self)), label=(f'{self.num}/{TreeElem.cnt}'))
         if self.left is not None:
             self.left.toDot(acc)
             acc.edge(str(id(self)), str(id(self.left)), label="0")
@@ -47,7 +53,6 @@ class TreeElem():
             acc.edge(str(id(self)), str(id(self.right)), label="1")
 
         return acc
-        
 
     def lookup(self, c:str, acc:str=""):
         if self.char == c:
@@ -74,6 +79,7 @@ class Huffman():
 
     def _update(self):
         q = PriorityQueue()
+        TreeElem.cnt = len(self.input)
         init = {x:self.input.count(x) for x in self.input}
 
         for k,v in init.items():
